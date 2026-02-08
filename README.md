@@ -72,7 +72,7 @@ Edit `.env.local`:
 ```bash
 DATABASE_URL="mongodb://localhost:27017/buildmycv"
 # OR for MongoDB Atlas:
-# DATABASE_URL="mongodb+srv://user:password@cluster.mongodb.net/buildmycv?retryWrites=true&w=majority"
+# DATABASE_URL="mongodb+srv://<username>:<password>@<cluster-host>/buildmycv?retryWrites=true&w=majority"
 
 NEXT_PUBLIC_API_URL="http://localhost:3000"
 JWT_SECRET="your-32-character-random-string-here"
