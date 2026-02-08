@@ -238,17 +238,17 @@ See [VERCEL_DEPLOYMENT.md](VERCEL_DEPLOYMENT.md) for complete guide.
 ```env
 DATABASE_URL="mongodb://localhost:27017/buildmycv"
 NEXT_PUBLIC_API_URL="http://localhost:3000"
-JWT_SECRET="dev-secret-key"
-NEXTAUTH_SECRET="dev-secret-key"
+JWT_SECRET="your-32-char-random-string"
+NEXTAUTH_SECRET="your-32-char-random-string"
 NEXTAUTH_URL="http://localhost:3000"
 NODE_ENV="development"
 ```
 
 ### Production (Vercel)
 ```env
-DATABASE_URL="mongodb+srv://user:pass@cluster.mongodb.net/buildmycv"
-NEXTAUTH_SECRET="production-secret-key"
-JWT_SECRET="production-secret-key"
+DATABASE_URL="mongodb+srv://<username>:<password>@<cluster-host>/buildmycv"
+NEXTAUTH_SECRET="your-32-char-random-string"
+JWT_SECRET="your-32-char-random-string"
 NEXTAUTH_URL="https://your-domain.vercel.app"
 NEXT_PUBLIC_API_URL="https://your-domain.vercel.app"
 NODE_ENV="production"

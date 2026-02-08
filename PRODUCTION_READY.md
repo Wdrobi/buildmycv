@@ -324,7 +324,7 @@ See: `VERCEL_DEPLOYMENT.md`
 
 ### Environment Variables (Vercel)
 ```
-DATABASE_URL=mongodb+srv://user:pass@cluster.mongodb.net/buildmycv
+DATABASE_URL=mongodb+srv://<username>:<password>@<cluster-host>/buildmycv
 NEXTAUTH_SECRET=your-32-char-random-string
 JWT_SECRET=your-32-char-random-string
 NEXTAUTH_URL=https://your-domain.vercel.app

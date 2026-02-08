@@ -57,7 +57,7 @@ All should be correct! Don't change anything.
 - **Name**: `DATABASE_URL`
 - **Value**: Your MongoDB connection string from Step 5 of SETUP_MONGODB.md
   ```
-  mongodb+srv://buildmycv:MySecure123Pass!@cluster0.xxxxx.mongodb.net/buildmycv?retryWrites=true&w=majority
+  mongodb+srv://<username>:<password>@<cluster-host>/buildmycv?retryWrites=true&w=majority
   ```
 - Click **"Add"**
 
