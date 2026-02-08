@@ -8,6 +8,8 @@ if (!JWT_SECRET) {
 }
 
 // Hash password
+const jwtSecret: string = JWT_SECRET;
+
 export async function hashPassword(password: string): Promise<string> {
   const salt = await bcrypt.genSalt(10);
   return bcrypt.hash(password, salt);
@@ -30,7 +32,7 @@ export function generateToken(userId: string, email: string): string {
       iat: Math.floor(Date.now() / 1000),
       exp: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60, // 7 days
     },
-    JWT_SECRET
+    JWT_SECRET as string
   );
 }
 
@@ -39,7 +41,7 @@ export function verifyToken(
   token: string
 ): { userId: string; email: string } | null {
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as {
+    const decoded = jwt.verify(token, JWT_SECRET as string) as {
       userId: string;
       email: string;
     };
