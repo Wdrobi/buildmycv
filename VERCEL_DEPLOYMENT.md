@@ -47,7 +47,7 @@ MongoDB Atlas is a free cloud database - perfect for production.
 
 **Example format**:
 ```
-mongodb+srv://buildmycv:PASSWORD@cluster0.xxxxx.mongodb.net/buildmycv?retryWrites=true&w=majority
+mongodb+srv://<username>:<password>@<cluster-host>/buildmycv?retryWrites=true&w=majority
 ```
 
 ⚠️ Replace `PASSWORD` with your actual password!
@@ -63,7 +63,7 @@ Save this connection string - you'll need it in Vercel.
 Edit `.env.local`:
 ```env
 # Use MongoDB Atlas connection string
-DATABASE_URL="mongodb+srv://buildmycv:YOUR_PASSWORD@cluster0.xxxxx.mongodb.net/buildmycv?retryWrites=true&w=majority"
+DATABASE_URL="mongodb+srv://<username>:<password>@<cluster-host>/buildmycv?retryWrites=true&w=majority"
 
 # Production URLs
 NEXTAUTH_URL="https://YOUR-DOMAIN.vercel.app"
@@ -142,7 +142,7 @@ Click "Environment Variables" section and add:
 
 | Name | Value |
 |------|-------|
-| DATABASE_URL | `mongodb+srv://buildmycv:PASSWORD@cluster0.xxxxx.mongodb.net/buildmycv?retryWrites=true&w=majority` |
+| DATABASE_URL | `mongodb+srv://<username>:<password>@<cluster-host>/buildmycv?retryWrites=true&w=majority` |
 | NEXTAUTH_SECRET | (your generated secret) |
 | JWT_SECRET | (your generated secret) |
 | NEXTAUTH_URL | `https://YOUR-VERCEL-DOMAIN.vercel.app` |

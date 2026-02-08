@@ -47,7 +47,7 @@ Complete this first before deploying to Vercel.
 
 It looks like:
 ```
-mongodb+srv://buildmycv:PASSWORD@cluster0.xxxxx.mongodb.net/?retryWrites=true&w=majority
+mongodb+srv://<username>:<password>@<cluster-host>/?retryWrites=true&w=majority
 ```
 
 ## Step 6: Customize Connection String (1 minute)
@@ -56,12 +56,12 @@ Replace the placeholder in the connection string:
 
 **Original**:
 ```
-mongodb+srv://buildmycv:PASSWORD@cluster0.xxxxx.mongodb.net/?retryWrites=true&w=majority
+mongodb+srv://<username>:<password>@<cluster-host>/?retryWrites=true&w=majority
 ```
 
-**Your version** (replace PASSWORD):
+**Your version** (replace placeholders):
 ```
-mongodb+srv://buildmycv:MySecure123Pass!@cluster0.xxxxx.mongodb.net/buildmycv?retryWrites=true&w=majority
+mongodb+srv://<username>:<password>@<cluster-host>/buildmycv?retryWrites=true&w=majority
 ```
 
 ⚠️ **Important**: Replace `PASSWORD` with your actual password from Step 3!
@@ -88,7 +88,7 @@ In MongoDB Compass (download from https://www.mongodb.com/products/compass):
 
 **Connection string to use for Vercel**:
 ```
-mongodb+srv://buildmycv:MySecure123Pass!@cluster0.xxxxx.mongodb.net/buildmycv?retryWrites=true&w=majority
+mongodb+srv://<username>:<password>@<cluster-host>/buildmycv?retryWrites=true&w=majority
 ```
 
 ---

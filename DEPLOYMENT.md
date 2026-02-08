@@ -150,7 +150,7 @@ Easy drag-and-drop deployment:
 
 ### Required (if using database)
 ```
-DATABASE_URL=mongodb+srv://user:password@host/database
+DATABASE_URL=mongodb+srv://<username>:<password>@<host>/<database>
 NEXTAUTH_SECRET=your-secret-key-here
 ```
 
@@ -225,7 +225,7 @@ add_header Referrer-Policy "no-referrer-when-downgrade" always;
 3. Get connection string
 4. Add to `.env.local`:
 ```
-DATABASE_URL=mongodb+srv://user:password@cluster.mongodb.net/buildmycv
+DATABASE_URL=mongodb+srv://<username>:<password>@<cluster-host>/buildmycv
 ```
 
 ### Run Prisma Setup

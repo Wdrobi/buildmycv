@@ -51,7 +51,7 @@
 3. Create cluster (free tier)
 4. Create database user (buildmycv)
 5. Get connection string
-   Format: mongodb+srv://buildmycv:PASSWORD@cluster0.xxxxx.mongodb.net/buildmycv
+   Format: mongodb+srv://<username>:<password>@<cluster-host>/buildmycv
 ```
 
 **1.2 Generate Production Secrets**
@@ -63,7 +63,7 @@ Save both generated strings!
 
 **1.3 Update .env.local for Vercel**
 ```env
-DATABASE_URL="mongodb+srv://buildmycv:YOUR_PASSWORD@cluster0.xxxxx.mongodb.net/buildmycv?retryWrites=true&w=majority"
+DATABASE_URL="mongodb+srv://<username>:<password>@<cluster-host>/buildmycv?retryWrites=true&w=majority"
 NEXTAUTH_SECRET="your-first-generated-secret"
 JWT_SECRET="your-second-generated-secret"
 NEXTAUTH_URL="https://YOUR-VERCEL-DOMAIN.vercel.app"
@@ -129,7 +129,7 @@ In Vercel dashboard, go to Settings → Environment Variables and add:
 
 | Name | Value |
 |------|-------|
-| DATABASE_URL | mongodb+srv://buildmycv:PASSWORD@cluster0.xxxxx.mongodb.net/buildmycv |
+| DATABASE_URL | mongodb+srv://<username>:<password>@<cluster-host>/buildmycv |
 | NEXTAUTH_SECRET | your-first-secret |
 | JWT_SECRET | your-second-secret |
 | NEXTAUTH_URL | https://buildmycv-xxx.vercel.app |

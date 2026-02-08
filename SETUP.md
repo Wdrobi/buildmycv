@@ -197,7 +197,7 @@ npm run start
 
 ### Environment Variables for Production
 ```env
-DATABASE_URL=mongodb+srv://user:pass@cluster.mongodb.net/buildmycv
+DATABASE_URL=mongodb+srv://<username>:<password>@<cluster-host>/buildmycv
 NEXT_PUBLIC_API_URL=https://yourdomain.com
 JWT_SECRET=your-strong-secret-key
 ```

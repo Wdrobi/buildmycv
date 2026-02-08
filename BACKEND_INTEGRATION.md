@@ -121,9 +121,9 @@ npm run db:studio
 ```bash
 # 1. Create account at https://www.mongodb.com/cloud/atlas
 # 2. Create cluster (free tier available)
-# 3. Get connection string: mongodb+srv://user:pass@cluster.mongodb.net/buildmycv
+# 3. Get connection string: mongodb+srv://<username>:<password>@<cluster-host>/buildmycv
 # 4. Add to .env.local:
-DATABASE_URL="mongodb+srv://username:password@cluster.mongodb.net/buildmycv?retryWrites=true&w=majority"
+DATABASE_URL="mongodb+srv://<username>:<password>@<cluster-host>/buildmycv?retryWrites=true&w=majority"
 
 # 5. Push schema
 npm run db:push
@@ -400,7 +400,7 @@ curl -X POST http://localhost:3000/api/cv/ats \
 
 **Update `.env.local`** to use production database:
 ```env
-DATABASE_URL="mongodb+srv://user:pass@cluster.mongodb.net/buildmycv?retryWrites=true&w=majority"
+DATABASE_URL="mongodb+srv://<username>:<password>@<cluster-host>/buildmycv?retryWrites=true&w=majority"
 NEXTAUTH_SECRET="generate-new-strong-secret-key"
 JWT_SECRET="generate-new-strong-secret-key"
 NEXTAUTH_URL="https://your-domain.vercel.app"
