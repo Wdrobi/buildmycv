@@ -47,6 +47,11 @@ export interface Skill {
   endorsements?: number;
 }
 
+export interface SkillsContent {
+  skills: Skill[];
+  categoryOrder?: string[];
+}
+
 export interface Project {
   id: string;
   title: string;

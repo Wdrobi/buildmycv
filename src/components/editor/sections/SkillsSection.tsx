@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useCVStore } from '@/store/cvStore';
-import { CVSection, Skill } from '@/types/cv';
+import { CVSection, Skill, SkillsContent } from '@/types/cv';
 
 interface SkillsSectionProps {
   section: CVSection;
@@ -12,7 +12,12 @@ const SKILL_LEVELS = ['beginner', 'intermediate', 'advanced', 'expert'] as const
 
 export default function SkillsSection({ section }: SkillsSectionProps) {
   const { updateSectionContent } = useCVStore();
-  const skills = (section.content as Skill[]) || [];
+  
+  // Support both old format (Skill[]) and new format (SkillsContent)
+  const content = section.content as Skill[] | SkillsContent;
+  const skills = Array.isArray(content) ? content : (content?.skills || []);
+  const categoryOrder = Array.isArray(content) ? undefined : (content?.categoryOrder || undefined);
+  
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
 
   // Group skills by category
@@ -23,7 +28,19 @@ export default function SkillsSection({ section }: SkillsSectionProps) {
     return acc;
   }, {} as Record<string, Skill[]>);
 
-  const categories = Object.keys(skillsByCategory).sort();
+  // Get categories in order
+  const allCategories = Object.keys(skillsByCategory);
+  const categories = categoryOrder
+    ? [...categoryOrder.filter(cat => allCategories.includes(cat)), ...allCategories.filter(cat => !categoryOrder.includes(cat))]
+    : allCategories.sort();
+
+  const updateContent = (updatedSkills: Skill[], updatedCategoryOrder?: string[]) => {
+    const newContent: SkillsContent = {
+      skills: updatedSkills,
+      categoryOrder: updatedCategoryOrder || categoryOrder || categories,
+    };
+    updateSectionContent(section.id, newContent);
+  };
 
   const handleAddCategory = () => {
     const categoryName = prompt('Enter category name (e.g., Frontend, Backend, DevOps):');
@@ -37,7 +54,8 @@ export default function SkillsSection({ section }: SkillsSectionProps) {
         category: trimmedName,
         endorsements: 0,
       };
-      updateSectionContent(section.id, [...skills, newSkill]);
+      const newCategoryOrder = [...categories, trimmedName];
+      updateContent([...skills, newSkill], newCategoryOrder);
       setExpandedCategory(trimmedName);
     }
   };
@@ -50,23 +68,17 @@ export default function SkillsSection({ section }: SkillsSectionProps) {
       category: category,
       endorsements: 0,
     };
-    updateSectionContent(section.id, [...skills, newSkill]);
+    updateContent([...skills, newSkill]);
   };
 
   const handleRemoveSkill = (id: string) => {
-    updateSectionContent(
-      section.id,
-      skills.filter(s => s.id !== id)
-    );
+    updateContent(skills.filter(s => s.id !== id));
   };
 
   const handleUpdateSkill = (id: string, field: string, value: any) => {
-    updateSectionContent(
-      section.id,
-      skills.map(s =>
-        s.id === id ? { ...s, [field]: value } : s
-      )
-    );
+    updateContent(skills.map(s =>
+      s.id === id ? { ...s, [field]: value } : s
+    ));
   };
 
   const handleRenameCategory = (oldName: string) => {
@@ -75,41 +87,90 @@ export default function SkillsSection({ section }: SkillsSectionProps) {
       const updatedSkills = skills.map(s =>
         s.category === oldName ? { ...s, category: newName.trim() } : s
       );
-      updateSectionContent(section.id, updatedSkills);
+      const updatedCategoryOrder = categories.map(cat => cat === oldName ? newName.trim() : cat);
+      updateContent(updatedSkills, updatedCategoryOrder);
       setExpandedCategory(newName.trim());
     }
   };
 
   const handleDeleteCategory = (category: string) => {
     if (confirm(`Delete category "${category}" and all its skills?`)) {
-      updateSectionContent(
-        section.id,
-        skills.filter(s => s.category !== category)
-      );
+      const updatedSkills = skills.filter(s => s.category !== category);
+      const updatedCategoryOrder = categories.filter(cat => cat !== category);
+      updateContent(updatedSkills, updatedCategoryOrder);
+    }
+  };
+
+  const handleMoveCategoryUp = (category: string) => {
+    const index = categories.indexOf(category);
+    if (index > 0) {
+      const newOrder = [...categories];
+      [newOrder[index - 1], newOrder[index]] = [newOrder[index], newOrder[index - 1]];
+      updateContent(skills, newOrder);
+    }
+  };
+
+  const handleMoveCategoryDown = (category: string) => {
+    const index = categories.indexOf(category);
+    if (index < categories.length - 1) {
+      const newOrder = [...categories];
+      [newOrder[index], newOrder[index + 1]] = [newOrder[index + 1], newOrder[index]];
+      updateContent(skills, newOrder);
     }
   };
 
   return (
     <div className="space-y-4">
-      {categories.map(category => (
+      {categories.map((category, index) => (
         <div key={category} className="border border-gray-200 rounded-lg overflow-hidden">
           {/* Category Header */}
-          <button
-            onClick={() =>
-              setExpandedCategory(expandedCategory === category ? null : category)
-            }
-            className="w-full bg-indigo-50 p-4 flex items-center justify-between hover:bg-indigo-100 transition"
-          >
-            <span className="font-semibold text-gray-900">{category}</span>
-            <div className="flex items-center space-x-2">
-              <span className="text-xs bg-indigo-600 text-white px-2 py-1 rounded-full">
-                {skillsByCategory[category].length}
-              </span>
-              <span className="text-gray-400">
-                {expandedCategory === category ? '▼' : '▶'}
-              </span>
+          <div className="flex items-center bg-indigo-50">
+            {/* Reorder Buttons */}
+            <div className="flex flex-col border-r border-gray-300">
+              <button
+                onClick={() => handleMoveCategoryUp(category)}
+                disabled={index === 0}
+                className={`px-2 py-1 ${
+                  index === 0
+                    ? 'text-gray-300 cursor-not-allowed'
+                    : 'text-gray-600 hover:bg-indigo-100'
+                } transition`}
+                title="Move up"
+              >
+                ▲
+              </button>
+              <button
+                onClick={() => handleMoveCategoryDown(category)}
+                disabled={index === categories.length - 1}
+                className={`px-2 py-1 ${
+                  index === categories.length - 1
+                    ? 'text-gray-300 cursor-not-allowed'
+                    : 'text-gray-600 hover:bg-indigo-100'
+                } transition`}
+                title="Move down"
+              >
+                ▼
+              </button>
             </div>
-          </button>
+            
+            {/* Category Title Button */}
+            <button
+              onClick={() =>
+                setExpandedCategory(expandedCategory === category ? null : category)
+              }
+              className="flex-1 p-4 flex items-center justify-between hover:bg-indigo-100 transition"
+            >
+              <span className="font-semibold text-gray-900">{category}</span>
+              <div className="flex items-center space-x-2">
+                <span className="text-xs bg-indigo-600 text-white px-2 py-1 rounded-full">
+                  {skillsByCategory[category].length}
+                </span>
+                <span className="text-gray-400">
+                  {expandedCategory === category ? '▼' : '▶'}
+                </span>
+              </div>
+            </button>
+          </div>
 
           {/* Category Content */}
           {expandedCategory === category && (

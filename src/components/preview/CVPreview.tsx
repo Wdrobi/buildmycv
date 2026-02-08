@@ -123,44 +123,51 @@ export default function CVPreview({ cv }: CVPreviewProps) {
 
         {section.type === 'skills' && (
           <div className="space-y-4">
-            {Array.isArray(section.content) && (
-              (() => {
-                const skillsByCategory = (section.content as any[]).reduce(
-                  (acc, skill) => {
-                    const cat = skill.category || 'Other Skills';
-                    if (!acc[cat]) acc[cat] = [];
-                    acc[cat].push(skill);
-                    return acc;
-                  },
-                  {} as Record<string, any[]>
-                );
+            {(() => {
+              // Support both old format (Skill[]) and new format (SkillsContent)
+              const content = section.content as any[] | { skills: any[]; categoryOrder?: string[] };
+              const skills = Array.isArray(content) ? content : (content?.skills || []);
+              const categoryOrder = Array.isArray(content) ? undefined : content?.categoryOrder;
+              
+              const skillsByCategory = skills.reduce(
+                (acc, skill) => {
+                  const cat = skill.category || 'Other Skills';
+                  if (!acc[cat]) acc[cat] = [];
+                  acc[cat].push(skill);
+                  return acc;
+                },
+                {} as Record<string, any[]>
+              );
 
-                return Object.entries(skillsByCategory)
-                  .sort()
-                  .map(([category, categorySkills]) => (
-                    <div key={category}>
-                      <h3 className="text-sm font-semibold text-gray-700 mb-2">
-                        {category}
-                      </h3>
-                      <div className="flex flex-wrap gap-2">
-                        {(categorySkills as any[]).map((skill) => (
-                          <span
-                            key={skill.id}
-                            className="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-sm font-medium"
-                          >
-                            {skill.name}
-                            {skill.level && skill.level !== 'intermediate' && (
-                              <span className="text-xs opacity-75 ml-1">
-                                ({skill.level})
-                              </span>
-                            )}
+              // Get categories in order
+              const allCategories = Object.keys(skillsByCategory);
+              const orderedCategories = categoryOrder
+                ? [...categoryOrder.filter(cat => allCategories.includes(cat)), ...allCategories.filter(cat => !categoryOrder.includes(cat))]
+                : allCategories.sort();
+
+              return orderedCategories.map((category) => (
+                <div key={category}>
+                  <h3 className="text-sm font-semibold text-gray-700 mb-2">
+                    {category}
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
+                    {skillsByCategory[category].map((skill) => (
+                      <span
+                        key={skill.id}
+                        className="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-sm font-medium"
+                      >
+                        {skill.name}
+                        {skill.level && skill.level !== 'intermediate' && (
+                          <span className="text-xs opacity-75 ml-1">
+                            ({skill.level})
                           </span>
-                        ))}
-                      </div>
-                    </div>
-                  ));
-              })()
-            )}
+                        )}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ));
+            })()}
           </div>
         )}
 
