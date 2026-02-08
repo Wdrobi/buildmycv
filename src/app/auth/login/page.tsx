@@ -21,11 +21,15 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    console.log('Login form submitted', formData);
 
     try {
+      console.log('Calling login function...');
       await login(formData.email, formData.password);
+      console.log('Login successful, redirecting...');
       router.push('/dashboard');
     } catch (err) {
+      console.error('Login error:', err);
       const message = err instanceof Error ? err.message : 'Invalid email or password';
       setError(message);
     }

@@ -23,6 +23,7 @@ export default function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    console.log('Registration form submitted', formData);
 
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
@@ -35,9 +36,12 @@ export default function RegisterPage() {
     }
 
     try {
+      console.log('Calling register function...');
       await register(formData.email, formData.password, formData.name);
+      console.log('Registration successful, redirecting...');
       router.push('/dashboard');
     } catch (err) {
+      console.error('Registration error:', err);
       const message = err instanceof Error ? err.message : 'Registration failed. Please try again.';
       setError(message);
     }
