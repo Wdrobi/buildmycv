@@ -28,6 +28,21 @@ A professional, feature-rich CV builder application built with Next.js 14, React
 - **Database**: MongoDB with Prisma ORM
 - **Styling**: Tailwind CSS with customization
 
+## 🚀 Quick Start - Get Running in 5 Minutes
+
+Choose your path:
+
+### ⚡ **For Experienced Developers** (5 min)
+👉 See [LOCALHOST_QUICKSTART.md](./LOCALHOST_QUICKSTART.md) for rapid setup
+
+### 📖 **For Detailed Setup** (15 min)
+👉 See [COMPLETE_LOCALHOST_GUIDE.md](./COMPLETE_LOCALHOST_GUIDE.md) for comprehensive guide with all options
+
+### ✅ **For Testing All Features**
+👉 See [LOCALHOST_TESTING_CHECKLIST.md](./LOCALHOST_TESTING_CHECKLIST.md) to verify everything works
+
+---
+
 ## Getting Started
 
 ### Prerequisites
@@ -45,26 +60,35 @@ cd BuildMyCV
 2. **Install dependencies**
 ```bash
 npm install
-```
-
-3. **Setup environment variables**
-```bash
-cp .env.example .env.local
-# Edit .env.local with your MongoDB connection string
-```
-
-4. **Setup Prisma**
-```bash
 npm run db:generate
+```
+
+3. **Setup MongoDB**
+   - **Local**: Install MongoDB Community Edition
+   - **Cloud**: Use MongoDB Atlas (free tier available)
+
+4. **Configure environment variables**
+Edit `.env.local`:
+```bash
+DATABASE_URL="mongodb://localhost:27017/buildmycv"
+# OR for MongoDB Atlas:
+# DATABASE_URL="mongodb+srv://user:password@cluster.mongodb.net/buildmycv?retryWrites=true&w=majority"
+
+NEXT_PUBLIC_API_URL="http://localhost:3000"
+JWT_SECRET="your-32-character-random-string-here"
+```
+
+5. **Sync database**
+```bash
 npm run db:push
 ```
 
-5. **Start the development server**
+6. **Start development server**
 ```bash
 npm run dev
 ```
 
-Visit `http://localhost:3000` in your browser.
+Visit `http://localhost:3000` in your browser and start building CVs!
 
 ## Project Structure
 
