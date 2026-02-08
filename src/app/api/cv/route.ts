@@ -29,7 +29,16 @@ export async function GET(request: NextRequest) {
       orderBy: { updatedAt: 'desc' },
     });
 
-    return successResponse({ cvs }, 'CVs retrieved successfully');
+    // Parse content from JSON strings to objects
+    const cvsWithParsedContent = cvs.map(cv => ({
+      ...cv,
+      sections: cv.sections.map(section => ({
+        ...section,
+        content: JSON.parse(section.content),
+      })),
+    }));
+
+    return successResponse({ cvs: cvsWithParsedContent }, 'CVs retrieved successfully');
   } catch (error: unknown) {
     const errorMsg = error instanceof Error ? error : new Error('Unknown error');
     return serverErrorResponse(errorMsg, 'Failed to retrieve CVs');
@@ -80,7 +89,7 @@ export async function POST(request: NextRequest) {
             create: sections?.map((section: any, index: number) => ({
               type: section.type,
               title: section.title,
-              content: section.content,
+              content: JSON.stringify(section.content),
               order: index + 1,
               visible: section.visible !== false,
             })) || [],
@@ -91,7 +100,16 @@ export async function POST(request: NextRequest) {
         },
       });
 
-      return successResponse({ cv: updatedCV }, 'CV updated successfully');
+      // Parse content back to objects for response
+      const cvWithParsedContent = {
+        ...updatedCV,
+        sections: updatedCV.sections.map(section => ({
+          ...section,
+          content: JSON.parse(section.content),
+        })),
+      };
+
+      return successResponse({ cv: cvWithParsedContent }, 'CV updated successfully');
     }
 
     // Create new CV
@@ -104,7 +122,7 @@ export async function POST(request: NextRequest) {
           create: sections?.map((section: any, index: number) => ({
             type: section.type,
             title: section.title,
-            content: section.content,
+            content: JSON.stringify(section.content),
             order: index + 1,
             visible: section.visible !== false,
           })) || [],
@@ -115,7 +133,16 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return successResponse({ cv: newCV }, 'CV created successfully', 201);
+    // Parse content back to objects for response
+    const cvWithParsedContent = {
+      ...newCV,
+      sections: newCV.sections.map(section => ({
+        ...section,
+        content: JSON.parse(section.content),
+      })),
+    };
+
+    return successResponse({ cv: cvWithParsedContent }, 'CV created successfully', 201);
   } catch (error: unknown) {
     const errorMsg = error instanceof Error ? error : new Error('Unknown error');
     return serverErrorResponse(errorMsg, 'Failed to save CV');
