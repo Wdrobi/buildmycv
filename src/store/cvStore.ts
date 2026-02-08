@@ -16,6 +16,9 @@ interface CVStore {
   updateCVTemplate: (template: string) => void;
   loadCV: (cvId: string) => Promise<void>;
   saveCV: () => Promise<void>;
+  saveToLocalStorage: () => void;
+  loadFromLocalStorage: () => CV | null;
+  clearLocalStorage: () => void;
 
   // Section Management
   addSection: (section: CVSection) => void;
@@ -45,7 +48,48 @@ export const useCVStore = create<CVStore>((set, get) => ({
   saveError: null,
 
   // CV Management
-  setCurrentCV: (cv: CV) => set({ currentCV: cv }),
+  setCurrentCV: (cv: CV) => {
+    set({ currentCV: cv });
+    // Save to localStorage immediately
+    try {
+      localStorage.setItem('cv-draft', JSON.stringify(cv));
+      localStorage.setItem('cv-draft-timestamp', new Date().toISOString());
+    } catch (error) {
+      console.error('Failed to save to localStorage:', error);
+    }
+  },
+
+  saveToLocalStorage: () => {
+    const { currentCV } = get();
+    if (!currentCV) return;
+    try {
+      localStorage.setItem('cv-draft', JSON.stringify(currentCV));
+      localStorage.setItem('cv-draft-timestamp', new Date().toISOString());
+    } catch (error) {
+      console.error('Failed to save to localStorage:', error);
+    }
+  },
+
+  loadFromLocalStorage: () => {
+    try {
+      const draft = localStorage.getItem('cv-draft');
+      if (draft) {
+        return JSON.parse(draft) as CV;
+      }
+    } catch (error) {
+      console.error('Failed to load from localStorage:', error);
+    }
+    return null;
+  },
+
+  clearLocalStorage: () => {
+    try {
+      localStorage.removeItem('cv-draft');
+      localStorage.removeItem('cv-draft-timestamp');
+    } catch (error) {
+      console.error('Failed to clear localStorage:', error);
+    }
+  },
 
   loadCV: async (cvId: string) => {
     try {
@@ -73,6 +117,13 @@ export const useCVStore = create<CVStore>((set, get) => ({
       const cv = result.data.cvs.find((c: CV) => c.id === cvId);
       if (cv) {
         set({ currentCV: cv, isLoading: false });
+        // Save to localStorage as backup
+        try {
+          localStorage.setItem('cv-draft', JSON.stringify(cv));
+          localStorage.setItem('cv-draft-timestamp', new Date().toISOString());
+        } catch (error) {
+          console.error('Failed to save to localStorage:', error);
+        }
       } else {
         throw new Error('CV not found');
       }
@@ -122,7 +173,15 @@ export const useCVStore = create<CVStore>((set, get) => ({
 
       // Update CV ID if it was temporary
       if (currentCV.id.startsWith('temp-')) {
-        set({ currentCV: { ...result.data.cv, atsScore: currentCV.atsScore } });
+        const updatedCV = { ...result.data.cv, atsScore: currentCV.atsScore };
+        set({ currentCV: updatedCV });
+        // Update localStorage with new ID
+        try {
+          localStorage.setItem('cv-draft', JSON.stringify(updatedCV));
+          localStorage.setItem('cv-draft-timestamp', new Date().toISOString());
+        } catch (error) {
+          console.error('Failed to update localStorage:', error);
+        }
       }
 
       set({ isSaving: false, lastSaved: new Date(), saveError: null });
@@ -136,20 +195,22 @@ export const useCVStore = create<CVStore>((set, get) => ({
   },
 
   updateCVTitle: (title: string) => {
-    const { currentCV } = get();
+    const { currentCV, saveToLocalStorage } = get();
     if (!currentCV) return;
     set({ currentCV: { ...currentCV, title } });
+    saveToLocalStorage();
   },
 
   updateCVTemplate: (template: string) => {
-    const { currentCV } = get();
+    const { currentCV, saveToLocalStorage } = get();
     if (!currentCV) return;
     set({ currentCV: { ...currentCV, template } });
+    saveToLocalStorage();
   },
 
   // Section Management
   addSection: (section: CVSection) => {
-    const { currentCV } = get();
+    const { currentCV, saveToLocalStorage } = get();
     if (!currentCV) return;
 
     const newSections = [...currentCV.sections, section];
@@ -159,10 +220,11 @@ export const useCVStore = create<CVStore>((set, get) => ({
         sections: newSections,
       },
     });
+    saveToLocalStorage();
   },
 
   removeSection: (sectionId: string) => {
-    const { currentCV } = get();
+    const { currentCV, saveToLocalStorage } = get();
     if (!currentCV) return;
 
     const newSections = currentCV.sections.filter(s => s.id !== sectionId);
@@ -172,10 +234,11 @@ export const useCVStore = create<CVStore>((set, get) => ({
         sections: newSections,
       },
     });
+    saveToLocalStorage();
   },
 
   updateSection: (sectionId: string, updates: Partial<CVSection>) => {
-    const { currentCV } = get();
+    const { currentCV, saveToLocalStorage } = get();
     if (!currentCV) return;
 
     const newSections = currentCV.sections.map(s =>
@@ -188,10 +251,11 @@ export const useCVStore = create<CVStore>((set, get) => ({
         sections: newSections,
       },
     });
+    saveToLocalStorage();
   },
 
   reorderSections: (sections: CVSection[]) => {
-    const { currentCV } = get();
+    const { currentCV, saveToLocalStorage } = get();
     if (!currentCV) return;
 
     set({
@@ -200,10 +264,11 @@ export const useCVStore = create<CVStore>((set, get) => ({
         sections: sections.map((s, index) => ({ ...s, order: index + 1 })),
       },
     });
+    saveToLocalStorage();
   },
 
   toggleSectionVisibility: (sectionId: string) => {
-    const { currentCV } = get();
+    const { currentCV, saveToLocalStorage } = get();
     if (!currentCV) return;
 
     const newSections = currentCV.sections.map(s =>
@@ -216,11 +281,12 @@ export const useCVStore = create<CVStore>((set, get) => ({
         sections: newSections,
       },
     });
+    saveToLocalStorage();
   },
 
   // Content Management
   updateSectionContent: (sectionId: string, content: any) => {
-    const { currentCV } = get();
+    const { currentCV, saveToLocalStorage } = get();
     if (!currentCV) return;
 
     const newSections = currentCV.sections.map(s =>
@@ -233,11 +299,12 @@ export const useCVStore = create<CVStore>((set, get) => ({
         sections: newSections,
       },
     });
+    saveToLocalStorage();
   },
 
   // Metadata
   updateMetadata: (metadata: Partial<CV['metadata']>) => {
-    const { currentCV } = get();
+    const { currentCV, saveToLocalStorage } = get();
     if (!currentCV) return;
 
     set({
@@ -249,6 +316,7 @@ export const useCVStore = create<CVStore>((set, get) => ({
         },
       },
     });
+    saveToLocalStorage();
   },
 
   // Save State

@@ -24,10 +24,14 @@ export default function EditorPage() {
     isSaving, 
     lastSaved, 
     saveError,
-    isLoading: cvLoading 
+    isLoading: cvLoading,
+    loadFromLocalStorage,
+    clearLocalStorage
   } = useCVStore();
   const { isAuthenticated, isLoading: authLoading, logout } = useAuthStore();
   const [showATS, setShowATS] = useState(false);
+  const [showRestorePrompt, setShowRestorePrompt] = useState(false);
+  const [localDraft, setLocalDraft] = useState<CV | null>(null);
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isInitialLoad = useRef(true);
 
@@ -38,12 +42,32 @@ export default function EditorPage() {
     }
   }, [isAuthenticated, authLoading, router]);
 
+  // Check for localStorage backup on mount
+  useEffect(() => {
+    if (isAuthenticated && !cvId && isInitialLoad.current) {
+      const draft = loadFromLocalStorage();
+      const timestamp = localStorage.getItem('cv-draft-timestamp');
+      
+      if (draft && timestamp) {
+        const draftTime = new Date(timestamp);
+        const now = new Date();
+        const diffMinutes = (now.getTime() - draftTime.getTime()) / 1000 / 60;
+        
+        // Show restore prompt if draft is less than 24 hours old
+        if (diffMinutes < 1440) {
+          setLocalDraft(draft);
+          setShowRestorePrompt(true);
+        }
+      }
+    }
+  }, [isAuthenticated, cvId, loadFromLocalStorage]);
+
   // Load CV on mount
   useEffect(() => {
     if (isAuthenticated && cvId && isInitialLoad.current) {
       isInitialLoad.current = false;
       loadCV(cvId);
-    } else if (isAuthenticated && !cvId && !currentCV && isInitialLoad.current) {
+    } else if (isAuthenticated && !cvId && !currentCV && isInitialLoad.current && !showRestorePrompt) {
       isInitialLoad.current = false;
       // Initialize with default CV if none exists
       setCurrentCV({
@@ -53,7 +77,7 @@ export default function EditorPage() {
         atsScore: 0,
       } as CV);
     }
-  }, [cvId, isAuthenticated, currentCV, loadCV, setCurrentCV]);
+  }, [cvId, isAuthenticated, currentCV, loadCV, setCurrentCV, showRestorePrompt]);
 
   // Auto-save when CV changes (debounced)
   useEffect(() => {
@@ -83,6 +107,27 @@ export default function EditorPage() {
     router.push('/');
   };
 
+  const handleRestoreDraft = () => {
+    if (localDraft) {
+      isInitialLoad.current = false;
+      setCurrentCV(localDraft);
+      setShowRestorePrompt(false);
+    }
+  };
+
+  const handleDiscardDraft = () => {
+    clearLocalStorage();
+    setShowRestorePrompt(false);
+    isInitialLoad.current = false;
+    // Initialize with default CV
+    setCurrentCV({
+      ...DEFAULT_CV,
+      id: 'temp-' + Date.now(),
+      userId: 'user-1',
+      atsScore: 0,
+    } as CV);
+  };
+
   const formatLastSaved = (date: Date | null) => {
     if (!date) return 'Not saved';
     
@@ -98,7 +143,62 @@ export default function EditorPage() {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
-  if (authLoading || cvLoading || !currentCV) {
+  if (authLoading || cvLoading || (!currentCV && !showRestorePrompt)) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p>Loading CV Editor...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show restore prompt modal
+  if (showRestorePrompt && localDraft) {
+    const timestamp = localStorage.getItem('cv-draft-timestamp');
+    const timeAgo = timestamp ? formatLastSaved(new Date(timestamp)) : 'recently';
+    
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg shadow-xl p-8 max-w-md mx-4">
+          <div className="text-center mb-6">
+            <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span className="text-3xl">💾</span>
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              Unsaved Changes Found
+            </h2>
+            <p className="text-gray-600">
+              We found a draft CV that was last edited {timeAgo}.
+              Would you like to restore it?
+            </p>
+          </div>
+          
+          <div className="space-y-3">
+            <button
+              onClick={handleRestoreDraft}
+              className="w-full bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition"
+            >
+              Restore Draft
+            </button>
+            <button
+              onClick={handleDiscardDraft}
+              className="w-full bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-300 transition"
+            >
+              Start Fresh
+            </button>
+          </div>
+          
+          <p className="text-xs text-gray-500 text-center mt-4">
+            Your draft is automatically saved to your browser's local storage
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!currentCV) {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
