@@ -56,7 +56,7 @@ export default function CVPreview({ cv }: CVPreviewProps) {
         </h2>
 
         {section.type === 'summary' && (
-          <div className="text-gray-700 text-sm whitespace-pre-wrap">
+          <div className="text-gray-700 text-sm whitespace-pre-wrap text-justify">
             {(section.content as any)?.text || ''}
           </div>
         )}
