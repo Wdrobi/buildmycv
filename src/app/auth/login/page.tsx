@@ -26,7 +26,8 @@ export default function LoginPage() {
       await login(formData.email, formData.password);
       router.push('/dashboard');
     } catch (err) {
-      setError('Invalid email or password');
+      const message = err instanceof Error ? err.message : 'Invalid email or password';
+      setError(message);
     }
   };
 
@@ -53,6 +54,7 @@ export default function LoginPage() {
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="you@example.com"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition"
                 required
               />
             </div>
@@ -67,6 +69,7 @@ export default function LoginPage() {
                 value={formData.password}
                 onChange={handleChange}
                 placeholder="••••••••"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition"
                 required
               />
             </div>

@@ -23,12 +23,14 @@ export const useAuthStore = create<AuthStore>((set) => ({
       });
 
       if (!response.ok) {
-        throw new Error('Login failed');
+        const error = await response.json();
+        throw new Error(error.message || 'Login failed');
       }
 
-      const data = await response.json();
-      set({ user: data.user, isAuthenticated: true });
-      localStorage.setItem('token', data.token);
+      const result = await response.json();
+      const { user, token } = result.data;
+      set({ user, isAuthenticated: true });
+      localStorage.setItem('token', token);
     } catch (error) {
       console.error('Login error:', error);
       throw error;
@@ -47,12 +49,14 @@ export const useAuthStore = create<AuthStore>((set) => ({
       });
 
       if (!response.ok) {
-        throw new Error('Registration failed');
+        const error = await response.json();
+        throw new Error(error.message || 'Registration failed');
       }
 
-      const data = await response.json();
-      set({ user: data.user, isAuthenticated: true });
-      localStorage.setItem('token', data.token);
+      const result = await response.json();
+      const { user, token } = result.data;
+      set({ user, isAuthenticated: true });
+      localStorage.setItem('token', token);
     } catch (error) {
       console.error('Registration error:', error);
       throw error;
@@ -74,12 +78,22 @@ export const useAuthStore = create<AuthStore>((set) => ({
   checkAuth: async () => {
     try {
       set({ isLoading: true });
-      const response = await fetch('/api/auth/me');
+      const token = localStorage.getItem('token');
+      if (!token) {
+        set({ user: null, isAuthenticated: false });
+        return;
+      }
+
+      const response = await fetch('/api/auth/me', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
 
       if (response.ok) {
-        const data = await response.json();
-        set({ user: data.user, isAuthenticated: true });
+        const result = await response.json();
+        const user = result.data.user;
+        set({ user, isAuthenticated: true });
       } else {
+        localStorage.removeItem('token');
         set({ user: null, isAuthenticated: false });
       }
     } catch (error) {
