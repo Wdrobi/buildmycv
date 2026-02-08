@@ -1,0 +1,95 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  email     String     @unique
+  password  String
+  name      String
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  cvs       CV[]
+  sessions  Session[]
+
+  @@map("users")
+}
+
+model CV {
+  id        String       @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String       @db.ObjectId
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String       @default("My CV")
+  template  String       @default("modern")
+  sections  Section[]
+  atsScore  Int          @default(0)
+  metadata  CVMetadata?
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  @@map("cvs")
+}
+
+model Section {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  cvId      String   @db.ObjectId
+  cv        CV       @relation(fields: [cvId], references: [id], onDelete: Cascade)
+  type      String   // "personal", "experience", "education", "skills", "projects", "certifications", "languages", "custom"
+  title     String
+  order     Int
+  visible   Boolean  @default(true)
+  content   String   // JSON stringified content
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("sections")
+}
+
+model CVMetadata {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  cvId         String   @unique @db.ObjectId
+  cv           CV       @relation(fields: [cvId], references: [id], onDelete: Cascade)
+  theme        String   @default("light")
+  fontSize     Int      @default(11)
+  fontFamily   String   @default("Arial")
+  lineHeight   Float    @default(1.5)
+  margin       Int      @default(20)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("cv_metadata")
+}
+
+model Template {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String   @unique
+  slug        String   @unique
+  description String
+  preview     String   // URL to preview image
+  sections    String[] // Array of default sections
+  config      String   // JSON stringified template config
+  isPublic    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("templates")
+}
+
+model Session {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@map("sessions")
+}
