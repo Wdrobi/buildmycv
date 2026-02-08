@@ -1,9 +1,35 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAuthStore } from '@/store/authStore';
 
 export default function DashboardPage() {
   const router = useRouter();
+  const { isAuthenticated, isLoading, logout, user } = useAuthStore();
+
+  // Check authentication
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      router.push('/auth/login');
+    }
+  }, [isAuthenticated, isLoading, router]);
+
+  const handleLogout = async () => {
+    await logout();
+    router.push('/');
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p>Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -12,17 +38,32 @@ export default function DashboardPage() {
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold">
+              <button
+                onClick={() => router.push('/')}
+                className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold hover:bg-indigo-700 transition"
+              >
                 CV
+              </button>
+              <div>
+                <h1 className="text-2xl md:text-3xl font-bold text-gray-900">My CVs</h1>
+                {user && <p className="text-sm text-gray-600">Welcome back, {user.name}!</p>}
               </div>
-              <h1 className="text-3xl font-bold text-gray-900">My CVs</h1>
             </div>
-            <button
-              onClick={() => router.push('/editor')}
-              className="bg-indigo-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition"
-            >
-              + Create New CV
-            </button>
+            <div className="flex items-center space-x-3">
+              <button
+                onClick={() => router.push('/editor')}
+                className="bg-indigo-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition"
+              >
+                + Create New CV
+              </button>
+              <button
+                onClick={handleLogout}
+                className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition font-medium"
+              >
+                <span>🚪</span>
+                <span className="hidden sm:inline">Logout</span>
+              </button>
+            </div>
           </div>
         </div>
       </header>

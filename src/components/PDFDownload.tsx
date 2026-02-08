@@ -51,23 +51,14 @@ export default function PDFDownload({ cv }: PDFDownloadProps) {
   };
 
   return (
-    <div className="flex flex-col sm:flex-row items-center gap-3">
-      <select
-        value={format}
-        onChange={(e) => setFormat(e.target.value as any)}
-        className="px-4 py-2 border border-gray-300 rounded-lg"
-      >
-        <option value="pdf">PDF</option>
-        <option value="json">JSON</option>
-        <option value="txt">Text</option>
-      </select>
+    <div className="flex items-center gap-2">
       <button
         onClick={handleDownload}
         disabled={isDownloading}
-        className="flex items-center space-x-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition font-medium"
+        className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition font-medium"
       >
         <span>⬇️</span>
-        <span>{isDownloading ? 'Downloading...' : 'Download'}</span>
+        <span className="hidden sm:inline">{isDownloading ? 'Downloading...' : 'Download PDF'}</span>
       </button>
     </div>
   );
