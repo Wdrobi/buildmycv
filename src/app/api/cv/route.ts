@@ -65,11 +65,26 @@ export async function POST(request: NextRequest) {
         return errorResponse('CV not found or unauthorized', 'You do not have permission to update this CV', 403);
       }
 
+      // Delete existing sections
+      await prisma.section.deleteMany({
+        where: { cvId: id },
+      });
+
+      // Update CV with new data
       const updatedCV = await prisma.cV.update({
         where: { id },
         data: {
           title: title || existingCV.title,
           template: template || existingCV.template,
+          sections: {
+            create: sections?.map((section: any, index: number) => ({
+              type: section.type,
+              title: section.title,
+              content: section.content,
+              order: index + 1,
+              visible: section.visible !== false,
+            })) || [],
+          },
         },
         include: {
           sections: { orderBy: { order: 'asc' } },
@@ -85,6 +100,15 @@ export async function POST(request: NextRequest) {
         userId: decoded.userId,
         title: title || 'Untitled CV',
         template: template || 'modern',
+        sections: {
+          create: sections?.map((section: any, index: number) => ({
+            type: section.type,
+            title: section.title,
+            content: section.content,
+            order: index + 1,
+            visible: section.visible !== false,
+          })) || [],
+        },
       },
       include: {
         sections: { orderBy: { order: 'asc' } },

@@ -8,11 +8,14 @@ interface CVStore {
   isLoading: boolean;
   isSaving: boolean;
   lastSaved: Date | null;
+  saveError: string | null;
 
   // CV Management
   setCurrentCV: (cv: CV) => void;
   updateCVTitle: (title: string) => void;
   updateCVTemplate: (template: string) => void;
+  loadCV: (cvId: string) => Promise<void>;
+  saveCV: () => Promise<void>;
 
   // Section Management
   addSection: (section: CVSection) => void;
@@ -30,6 +33,7 @@ interface CVStore {
   // Save State
   markAsSaving: () => void;
   markAsSaved: () => void;
+  setSaveError: (error: string | null) => void;
 }
 
 export const useCVStore = create<CVStore>((set, get) => ({
@@ -38,9 +42,98 @@ export const useCVStore = create<CVStore>((set, get) => ({
   isLoading: false,
   isSaving: false,
   lastSaved: null,
+  saveError: null,
 
   // CV Management
   setCurrentCV: (cv: CV) => set({ currentCV: cv }),
+
+  loadCV: async (cvId: string) => {
+    try {
+      set({ isLoading: true });
+      
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No authentication token');
+      }
+
+      const response = await fetch('/api/cv', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      const result = await response.json();
+      
+      if (!response.ok || !result.success) {
+        throw new Error(result.message || 'Failed to load CV');
+      }
+
+      // Find the specific CV
+      const cv = result.data.cvs.find((c: CV) => c.id === cvId);
+      if (cv) {
+        set({ currentCV: cv, isLoading: false });
+      } else {
+        throw new Error('CV not found');
+      }
+    } catch (error) {
+      console.error('Failed to load CV:', error);
+      set({ isLoading: false });
+    }
+  },
+
+  saveCV: async () => {
+    const { currentCV } = get();
+    if (!currentCV) return;
+
+    try {
+      set({ isSaving: true, saveError: null });
+      
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No authentication token');
+      }
+
+      const response = await fetch('/api/cv', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          id: currentCV.id.startsWith('temp-') ? undefined : currentCV.id,
+          title: currentCV.title,
+          template: currentCV.template,
+          sections: currentCV.sections.map(section => ({
+            type: section.type,
+            title: section.title,
+            content: section.content,
+            order: section.order,
+            visible: section.visible,
+          })),
+        }),
+      });
+
+      const result = await response.json();
+      
+      if (!response.ok || !result.success) {
+        throw new Error(result.message || 'Failed to save CV');
+      }
+
+      // Update CV ID if it was temporary
+      if (currentCV.id.startsWith('temp-')) {
+        set({ currentCV: { ...result.data.cv, atsScore: currentCV.atsScore } });
+      }
+
+      set({ isSaving: false, lastSaved: new Date(), saveError: null });
+    } catch (error) {
+      console.error('Failed to save CV:', error);
+      set({ 
+        isSaving: false, 
+        saveError: error instanceof Error ? error.message : 'Failed to save CV' 
+      });
+    }
+  },
 
   updateCVTitle: (title: string) => {
     const { currentCV } = get();
@@ -162,4 +255,5 @@ export const useCVStore = create<CVStore>((set, get) => ({
   markAsSaving: () => set({ isSaving: true }),
   markAsSaved: () =>
     set({ isSaving: false, lastSaved: new Date() }),
+  setSaveError: (error: string | null) => set({ saveError: error }),
 }));
