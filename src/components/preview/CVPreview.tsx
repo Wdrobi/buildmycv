@@ -143,6 +143,56 @@ export default function CVPreview({ cv }: CVPreviewProps) {
           </div>
         )}
 
+        {section.type === 'projects' && (
+          <div className="space-y-4">
+            {Array.isArray(section.content) &&
+              section.content.map((item: any) => (
+                <div key={item.id}>
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-gray-900">{item.title}</h3>
+                      {item.technologies?.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mt-1">
+                          {item.technologies.map((tech: string, index: number) => (
+                            <span
+                              key={index}
+                              className="bg-gray-100 text-gray-700 px-2 py-0.5 rounded text-xs font-medium"
+                            >
+                              {tech}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      {item.link && (
+                        <a
+                          href={item.link}
+                          className="text-indigo-600 text-xs hover:underline mt-1 inline-block"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          🔗 {item.link}
+                        </a>
+                      )}
+                    </div>
+                    {(item.startDate || item.endDate) && (
+                      <span className="text-sm text-gray-600 whitespace-nowrap ml-4">
+                        {item.startDate}
+                        {item.endDate && ` - ${item.endDate}`}
+                        {item.currentlyWorking && ' - Present'}
+                      </span>
+                    )}
+                  </div>
+                  {item.description && (
+                    <div
+                      className="text-gray-700 text-sm mt-2 rich-text-content"
+                      dangerouslySetInnerHTML={renderRichText(item.description)}
+                    />
+                  )}
+                </div>
+              ))}
+          </div>
+        )}
+
         {section.type === 'skills' && (
           <div className="space-y-4">
             {(() => {
