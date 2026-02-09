@@ -13,6 +13,12 @@ export default function CertificationSection({ section }: CertificationSectionPr
   const certifications = (section.content as Certification[]) || [];
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
+  // Sort certifications by issueDate in descending order (most recent first)
+  const sortedCertifications = [...certifications].sort((a, b) => {
+    if (!a.issueDate || !b.issueDate) return 0;
+    return new Date(b.issueDate).getTime() - new Date(a.issueDate).getTime();
+  });
+
   const handleAddCertification = () => {
     const newCertification: Certification = {
       id: 'cert-' + Date.now(),
@@ -45,7 +51,7 @@ export default function CertificationSection({ section }: CertificationSectionPr
   return (
     <div className="space-y-4">
       <div className="space-y-3">
-        {certifications.map(cert => (
+        {sortedCertifications.map(cert => (
           <div key={cert.id} className="border border-gray-200 rounded-lg overflow-hidden">
             <button
               onClick={() => setExpandedId(expandedId === cert.id ? null : cert.id)}

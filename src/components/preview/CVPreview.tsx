@@ -205,8 +205,13 @@ export default function CVPreview({ cv }: CVPreviewProps) {
 
         {section.type === 'certifications' && (
           <div className="space-y-3">
-            {Array.isArray(section.content) &&
-              section.content.map((item: any) => (
+            {Array.isArray(section.content) && (() => {
+              // Sort certifications by issueDate in descending order (most recent first)
+              const sortedCerts = [...section.content].sort((a: any, b: any) => {
+                if (!a.issueDate || !b.issueDate) return 0;
+                return new Date(b.issueDate).getTime() - new Date(a.issueDate).getTime();
+              });
+              return sortedCerts.map((item: any) => (
                 <div key={item.id}>
                   <div className="flex justify-between items-start">
                     <div>
@@ -226,7 +231,8 @@ export default function CVPreview({ cv }: CVPreviewProps) {
                     </a>
                   )}
                 </div>
-              ))}
+              ));
+            })()}
           </div>
         )}
 
