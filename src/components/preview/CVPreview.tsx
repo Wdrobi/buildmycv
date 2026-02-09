@@ -104,7 +104,7 @@ export default function CVPreview({ cv }: CVPreviewProps) {
                   </div>
                   {item.description && (
                     <div
-                      className="text-gray-700 text-sm mt-2 rich-text-content"
+                      className="text-gray-700 text-sm mt-2 rich-text-content text-justify"
                       dangerouslySetInnerHTML={renderRichText(item.description)}
                     />
                   )}
@@ -134,7 +134,7 @@ export default function CVPreview({ cv }: CVPreviewProps) {
                   </div>
                   {item.description && (
                     <div
-                      className="text-gray-700 text-sm mt-2 rich-text-content"
+                      className="text-gray-700 text-sm mt-2 rich-text-content text-justify"
                       dangerouslySetInnerHTML={renderRichText(item.description)}
                     />
                   )}
@@ -184,7 +184,7 @@ export default function CVPreview({ cv }: CVPreviewProps) {
                   </div>
                   {item.description && (
                     <div
-                      className="text-gray-700 text-sm mt-2 rich-text-content"
+                      className="text-gray-700 text-sm mt-2 rich-text-content text-justify"
                       dangerouslySetInnerHTML={renderRichText(item.description)}
                     />
                   )}
@@ -311,7 +311,7 @@ export default function CVPreview({ cv }: CVPreviewProps) {
                   </div>
                   {item.description && (
                     <div
-                      className="text-gray-700 text-sm mt-2 rich-text-content"
+                      className="text-gray-700 text-sm mt-2 rich-text-content text-justify"
                       dangerouslySetInnerHTML={renderRichText(item.description)}
                     />
                   )}
@@ -353,6 +353,7 @@ export default function CVPreview({ cv }: CVPreviewProps) {
       <style>{`
         .rich-text-content * {
           margin: 0;
+          text-align: justify;
         }
         .rich-text-content p {
           margin-bottom: 0.5rem;
