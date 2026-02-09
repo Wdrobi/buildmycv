@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useCVStore } from '@/store/cvStore';
 import { CVSection, Education } from '@/types/cv';
+import RichTextEditor from '@/components/RichTextEditor';
 
 interface EducationSectionProps {
   section: CVSection;
@@ -170,17 +171,13 @@ export default function EducationSection({ section }: EducationSectionProps) {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Description (optional)
                 </label>
-                <textarea
+                <RichTextEditor
                   value={edu.description || ''}
-                  onChange={(e) =>
-                    handleUpdateEducation(
-                      edu.id,
-                      'description',
-                      e.target.value
-                    )
+                  onChange={(value) =>
+                    handleUpdateEducation(edu.id, 'description', value)
                   }
                   placeholder="Add any additional details..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm min-h-[80px]"
+                  height="180px"
                 />
               </div>
             </div>

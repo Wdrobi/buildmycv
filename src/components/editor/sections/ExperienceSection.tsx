@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useCVStore } from '@/store/cvStore';
 import { CVSection, Experience } from '@/types/cv';
+import RichTextEditor from '@/components/RichTextEditor';
 
 interface ExperienceSectionProps {
   section: CVSection;
@@ -170,17 +171,13 @@ export default function ExperienceSection({ section }: ExperienceSectionProps) {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Description
                 </label>
-                <textarea
+                <RichTextEditor
                   value={exp.description}
-                  onChange={(e) =>
-                    handleUpdateExperience(
-                      exp.id,
-                      'description',
-                      e.target.value
-                    )
+                  onChange={(value) =>
+                    handleUpdateExperience(exp.id, 'description', value)
                   }
                   placeholder="Describe your responsibilities and achievements..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm min-h-[100px]"
+                  height="200px"
                 />
               </div>
             </div>

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useCVStore } from '@/store/cvStore';
 import { CVSection, Volunteering } from '@/types/cv';
+import RichTextEditor from '@/components/RichTextEditor';
 
 interface VolunteeringSectionProps {
   section: CVSection;
@@ -144,12 +145,11 @@ export default function VolunteeringSection({ section }: VolunteeringSectionProp
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Description
                   </label>
-                  <textarea
+                  <RichTextEditor
                     value={vol.description}
-                    onChange={(e) => handleUpdateVolunteering(vol.id, 'description', e.target.value)}
+                    onChange={(value) => handleUpdateVolunteering(vol.id, 'description', value)}
                     placeholder="Describe your volunteering activities and impact..."
-                    rows={4}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                    height="180px"
                   />
                 </div>
 

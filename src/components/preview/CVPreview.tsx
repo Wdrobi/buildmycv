@@ -6,6 +6,10 @@ interface CVPreviewProps {
   cv: CV;
 }
 
+const renderRichText = (html: string) => ({
+  __html: html,
+});
+
 export default function CVPreview({ cv }: CVPreviewProps) {
   const renderPersonalSection = () => {
     const personal = cv.sections.find(s => s.type === 'personal')?.content as any;
@@ -83,9 +87,10 @@ export default function CVPreview({ cv }: CVPreviewProps) {
                     </span>
                   </div>
                   {item.description && (
-                    <p className="text-gray-700 text-sm mt-2">
-                      {item.description}
-                    </p>
+                    <div
+                      className="text-gray-700 text-sm mt-2 rich-text-content"
+                      dangerouslySetInnerHTML={renderRichText(item.description)}
+                    />
                   )}
                 </div>
               ))}
@@ -112,9 +117,10 @@ export default function CVPreview({ cv }: CVPreviewProps) {
                     </span>
                   </div>
                   {item.description && (
-                    <p className="text-gray-700 text-sm mt-2">
-                      {item.description}
-                    </p>
+                    <div
+                      className="text-gray-700 text-sm mt-2 rich-text-content"
+                      dangerouslySetInnerHTML={renderRichText(item.description)}
+                    />
                   )}
                 </div>
               ))}
@@ -122,56 +128,6 @@ export default function CVPreview({ cv }: CVPreviewProps) {
         )}
 
         {section.type === 'skills' && (
-          <div className="space-y-4">
-            {(() => {
-              // Support both old format (Skill[]) and new format (SkillsContent)
-              const content = section.content as any[] | { skills: any[]; categoryOrder?: string[] };
-              const skills = Array.isArray(content) ? content : (content?.skills || []);
-              const categoryOrder = Array.isArray(content) ? undefined : content?.categoryOrder;
-              
-              const skillsByCategory = skills.reduce(
-                (acc, skill) => {
-                  const cat = skill.category || 'Other Skills';
-                  if (!acc[cat]) acc[cat] = [];
-                  acc[cat].push(skill);
-                  return acc;
-                },
-                {} as Record<string, any[]>
-              );
-
-              // Get categories in order
-              const allCategories = Object.keys(skillsByCategory);
-              const orderedCategories = categoryOrder
-                ? [...categoryOrder.filter(cat => allCategories.includes(cat)), ...allCategories.filter(cat => !categoryOrder.includes(cat))]
-                : allCategories.sort();
-
-              return orderedCategories.map((category) => (
-                <div key={category}>
-                  <h3 className="text-sm font-semibold text-gray-700 mb-2">
-                    {category}
-                  </h3>
-                  <div className="flex flex-wrap gap-2">
-                    {skillsByCategory[category].map((skill) => (
-                      <span
-                        key={skill.id}
-                        className="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-sm font-medium"
-                      >
-                        {skill.name}
-                        {skill.level && skill.level !== 'intermediate' && (
-                          <span className="text-xs opacity-75 ml-1">
-                            ({skill.level})
-                          </span>
-                        )}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              ));
-            })()}
-          </div>
-        )}
-
-        {section.type === 'projects' && (
           <div className="space-y-4">
             {Array.isArray(section.content) &&
               section.content.map((item: any) => (
@@ -189,9 +145,10 @@ export default function CVPreview({ cv }: CVPreviewProps) {
                       </a>
                     )}
                   </div>
-                  <p className="text-gray-700 text-sm mt-1">
-                    {item.description}
-                  </p>
+                  <div
+                    className="text-gray-700 text-sm mt-1 rich-text-content"
+                    dangerouslySetInnerHTML={renderRichText(item.description)}
+                  />
                   {item.technologies?.length > 0 && (
                     <p className="text-gray-600 text-xs mt-2">
                       <span className="font-semibold">Tech:</span>{' '}
@@ -270,9 +227,10 @@ export default function CVPreview({ cv }: CVPreviewProps) {
                     </span>
                   </div>
                   {item.description && (
-                    <p className="text-gray-700 text-sm mt-2">
-                      {item.description}
-                    </p>
+                    <div
+                      className="text-gray-700 text-sm mt-2 rich-text-content"
+                      dangerouslySetInnerHTML={renderRichText(item.description)}
+                    />
                   )}
                 </div>
               ))}
@@ -309,6 +267,57 @@ export default function CVPreview({ cv }: CVPreviewProps) {
         lineHeight: cv.metadata?.lineHeight || 1.5,
       }}
     >
+      <style>{`
+        .rich-text-content * {
+          margin: 0;
+        }
+        .rich-text-content p {
+          margin-bottom: 0.5rem;
+          line-height: 1.5;
+        }
+        .rich-text-content h1,
+        .rich-text-content h2,
+        .rich-text-content h3 {
+          font-weight: 600;
+          margin-top: 0.5rem;
+          margin-bottom: 0.5rem;
+        }
+        .rich-text-content ul,
+        .rich-text-content ol {
+          margin-left: 1.5rem;
+          margin-bottom: 0.5rem;
+        }
+        .rich-text-content li {
+          margin-bottom: 0.25rem;
+        }
+        .rich-text-content strong {
+          font-weight: 600;
+        }
+        .rich-text-content em {
+          font-style: italic;
+        }
+        .rich-text-content u {
+          text-decoration: underline;
+        }
+        .rich-text-content blockquote {
+          border-left: 4px solid rgb(209, 213, 219);
+          padding-left: 1rem;
+          margin-left: 0;
+          margin-right: 0;
+          color: rgb(107, 114, 128);
+          margin-bottom: 0.5rem;
+        }
+        .rich-text-content a {
+          color: rgb(99, 102, 241);
+          text-decoration: underline;
+        }
+        .rich-text-content code {
+          background-color: rgb(243, 244, 246);
+          padding: 0.125rem 0.375rem;
+          border-radius: 0.25rem;
+          font-family: monospace;
+        }
+      `}</style>
       {renderPersonalSection()}
 
       {cv.sections

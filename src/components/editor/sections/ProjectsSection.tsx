@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useCVStore } from '@/store/cvStore';
 import { CVSection, Project } from '@/types/cv';
+import RichTextEditor from '@/components/RichTextEditor';
 
 interface ProjectsSectionProps {
   section: CVSection;
@@ -95,17 +96,13 @@ export default function ProjectsSection({ section }: ProjectsSectionProps) {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Description
                 </label>
-                <textarea
+                <RichTextEditor
                   value={project.description}
-                  onChange={(e) =>
-                    handleUpdateProject(
-                      project.id,
-                      'description',
-                      e.target.value
-                    )
+                  onChange={(value) =>
+                    handleUpdateProject(project.id, 'description', value)
                   }
                   placeholder="Describe the project..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm min-h-[80px]"
+                  height="180px"
                 />
               </div>
 
