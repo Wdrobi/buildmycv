@@ -44,31 +44,69 @@ export default function EducationSection({ section }: EducationSectionProps) {
     );
   };
 
+  const handleMoveUp = (index: number) => {
+    if (index === 0) return;
+    const newEducations = [...educations];
+    [newEducations[index - 1], newEducations[index]] = [newEducations[index], newEducations[index - 1]];
+    updateSectionContent(section.id, newEducations);
+  };
+
+  const handleMoveDown = (index: number) => {
+    if (index === educations.length - 1) return;
+    const newEducations = [...educations];
+    [newEducations[index], newEducations[index + 1]] = [newEducations[index + 1], newEducations[index]];
+    updateSectionContent(section.id, newEducations);
+  };
+
   return (
     <div className="space-y-4">
-      {educations.map(edu => (
+      {educations.map((edu, index) => (
         <div key={edu.id} className="border border-gray-200 rounded-lg">
-          <div
-            className="bg-gray-50 p-3 cursor-pointer hover:bg-gray-100 flex items-center justify-between"
-            onClick={() =>
-              setExpandedId(expandedId === edu.id ? null : edu.id)
-            }
-          >
-            <div>
+          <div className="bg-gray-50 p-3 hover:bg-gray-100 flex items-center justify-between">
+            <div
+              className="flex-1 cursor-pointer"
+              onClick={() =>
+                setExpandedId(expandedId === edu.id ? null : edu.id)
+              }
+            >
               <p className="font-medium text-gray-900">
                 {edu.degree || 'Degree'} {edu.field && `in ${edu.field}`}
               </p>
               <p className="text-sm text-gray-600">{edu.school || 'School'}</p>
             </div>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleRemoveEducation(edu.id);
-              }}
-              className="text-red-600 hover:text-red-700 text-sm"
-            >
-              Remove
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleMoveUp(index);
+                }}
+                disabled={index === 0}
+                className="px-2 py-1 text-sm bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Move up"
+              >
+                ▲
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleMoveDown(index);
+                }}
+                disabled={index === educations.length - 1}
+                className="px-2 py-1 text-sm bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Move down"
+              >
+                ▼
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleRemoveEducation(edu.id);
+                }}
+                className="text-red-600 hover:text-red-700 text-sm"
+              >
+                Remove
+              </button>
+            </div>
           </div>
 
           {expandedId === edu.id && (

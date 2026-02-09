@@ -44,22 +44,56 @@ export default function VolunteeringSection({ section }: VolunteeringSectionProp
     );
   };
 
+  const handleMoveUp = (index: number) => {
+    if (index === 0) return;
+    const newVolunteering = [...volunteering];
+    [newVolunteering[index - 1], newVolunteering[index]] = [newVolunteering[index], newVolunteering[index - 1]];
+    updateSectionContent(section.id, newVolunteering);
+  };
+
+  const handleMoveDown = (index: number) => {
+    if (index === volunteering.length - 1) return;
+    const newVolunteering = [...volunteering];
+    [newVolunteering[index], newVolunteering[index + 1]] = [newVolunteering[index + 1], newVolunteering[index]];
+    updateSectionContent(section.id, newVolunteering);
+  };
+
   return (
     <div className="space-y-4">
       <div className="space-y-3">
-        {volunteering.map(vol => (
+        {volunteering.map((vol, index) => (
           <div key={vol.id} className="border border-gray-200 rounded-lg overflow-hidden">
-            <button
-              onClick={() => setExpandedId(expandedId === vol.id ? null : vol.id)}
-              className="w-full bg-gray-50 p-3 flex items-center justify-between hover:bg-gray-100 transition"
-            >
-              <span className="font-medium text-gray-900">
-                {vol.role || 'New Volunteering'}
-              </span>
-              <span className="text-gray-400">
-                {expandedId === vol.id ? '▼' : '▶'}
-              </span>
-            </button>
+            <div className="w-full bg-gray-50 p-3 flex items-center justify-between hover:bg-gray-100 transition">
+              <button
+                onClick={() => setExpandedId(expandedId === vol.id ? null : vol.id)}
+                className="flex-1 text-left"
+              >
+                <span className="font-medium text-gray-900">
+                  {vol.role || 'New Volunteering'}
+                </span>
+              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => handleMoveUp(index)}
+                  disabled={index === 0}
+                  className="p-1 text-gray-600 hover:text-gray-900 disabled:opacity-30 disabled:cursor-not-allowed"
+                  title="Move up"
+                >
+                  ▲
+                </button>
+                <button
+                  onClick={() => handleMoveDown(index)}
+                  disabled={index === volunteering.length - 1}
+                  className="p-1 text-gray-600 hover:text-gray-900 disabled:opacity-30 disabled:cursor-not-allowed"
+                  title="Move down"
+                >
+                  ▼
+                </button>
+                <span className="text-gray-400">
+                  {expandedId === vol.id ? '▼' : '▶'}
+                </span>
+              </div>
+            </div>
 
             {expandedId === vol.id && (
               <div className="p-4 space-y-3 bg-white border-t border-gray-200">

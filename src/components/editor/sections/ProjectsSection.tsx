@@ -44,17 +44,31 @@ export default function ProjectsSection({ section }: ProjectsSectionProps) {
     );
   };
 
+  const handleMoveUp = (index: number) => {
+    if (index === 0) return;
+    const newProjects = [...projects];
+    [newProjects[index - 1], newProjects[index]] = [newProjects[index], newProjects[index - 1]];
+    updateSectionContent(section.id, newProjects);
+  };
+
+  const handleMoveDown = (index: number) => {
+    if (index === projects.length - 1) return;
+    const newProjects = [...projects];
+    [newProjects[index], newProjects[index + 1]] = [newProjects[index + 1], newProjects[index]];
+    updateSectionContent(section.id, newProjects);
+  };
+
   return (
     <div className="space-y-4">
-      {projects.map(project => (
+      {projects.map((project, index) => (
         <div key={project.id} className="border border-gray-200 rounded-lg">
-          <div
-            className="bg-gray-50 p-3 cursor-pointer hover:bg-gray-100 flex items-center justify-between"
-            onClick={() =>
-              setExpandedId(expandedId === project.id ? null : project.id)
-            }
-          >
-            <div>
+          <div className="bg-gray-50 p-3 hover:bg-gray-100 flex items-center justify-between">
+            <div
+              className="flex-1 cursor-pointer"
+              onClick={() =>
+                setExpandedId(expandedId === project.id ? null : project.id)
+              }
+            >
               <p className="font-medium text-gray-900">
                 {project.title || 'Project Title'}
               </p>
@@ -64,15 +78,39 @@ export default function ProjectsSection({ section }: ProjectsSectionProps) {
                 </p>
               )}
             </div>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleRemoveProject(project.id);
-              }}
-              className="text-red-600 hover:text-red-700 text-sm"
-            >
-              Remove
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleMoveUp(index);
+                }}
+                disabled={index === 0}
+                className="px-2 py-1 text-sm bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Move up"
+              >
+                ▲
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleMoveDown(index);
+                }}
+                disabled={index === projects.length - 1}
+                className="px-2 py-1 text-sm bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Move down"
+              >
+                ▼
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleRemoveProject(project.id);
+                }}
+                className="text-red-600 hover:text-red-700 text-sm"
+              >
+                Remove
+              </button>
+            </div>
           </div>
 
           {expandedId === project.id && (

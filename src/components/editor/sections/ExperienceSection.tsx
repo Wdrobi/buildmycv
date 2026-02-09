@@ -44,31 +44,63 @@ export default function ExperienceSection({ section }: ExperienceSectionProps) {
     );
   };
 
+  const handleMoveUp = (index: number) => {
+    if (index === 0) return;
+    const newExperiences = [...experiences];
+    [newExperiences[index - 1], newExperiences[index]] = [newExperiences[index], newExperiences[index - 1]];
+    updateSectionContent(section.id, newExperiences);
+  };
+
+  const handleMoveDown = (index: number) => {
+    if (index === experiences.length - 1) return;
+    const newExperiences = [...experiences];
+    [newExperiences[index], newExperiences[index + 1]] = [newExperiences[index + 1], newExperiences[index]];
+    updateSectionContent(section.id, newExperiences);
+  };
+
   return (
     <div className="space-y-4">
-      {experiences.map(exp => (
+      {experiences.map((exp, index) => (
         <div key={exp.id} className="border border-gray-200 rounded-lg">
           <div
-            className="bg-gray-50 p-3 cursor-pointer hover:bg-gray-100 flex items-center justify-between"
-            onClick={() =>
-              setExpandedId(expandedId === exp.id ? null : exp.id)
-            }
+            className="bg-gray-50 p-3 hover:bg-gray-100 flex items-center justify-between"
           >
-            <div>
+            <div
+              className="flex-1 cursor-pointer"
+              onClick={() => setExpandedId(expandedId === exp.id ? null : exp.id)}
+            >
               <p className="font-medium text-gray-900">
                 {exp.jobTitle || 'Job Title'}
               </p>
               <p className="text-sm text-gray-600">{exp.company || 'Company'}</p>
             </div>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleRemoveExperience(exp.id);
-              }}
-              className="text-red-600 hover:text-red-700 text-sm"
-            >
-              Remove
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => handleMoveUp(index)}
+                disabled={index === 0}
+                className="p-1 text-gray-600 hover:text-gray-900 disabled:opacity-30 disabled:cursor-not-allowed"
+                title="Move up"
+              >
+                ▲
+              </button>
+              <button
+                onClick={() => handleMoveDown(index)}
+                disabled={index === experiences.length - 1}
+                className="p-1 text-gray-600 hover:text-gray-900 disabled:opacity-30 disabled:cursor-not-allowed"
+                title="Move down"
+              >
+                ▼
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleRemoveExperience(exp.id);
+                }}
+                className="text-red-600 hover:text-red-700 text-sm"
+              >
+                Remove
+              </button>
+            </div>
           </div>
 
           {expandedId === exp.id && (
