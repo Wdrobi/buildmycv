@@ -18,6 +18,9 @@ export default function PDFDownload({ cv }: PDFDownloadProps) {
 
       if (format === 'pdf') {
         // PDF download must be done from client side due to DOM requirement
+        // Give DOM time to settle before capturing
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
         await PDFGenerator.generatePDFFromHTML(
           'cv-preview',
           `${cv.title || 'CV'}.pdf`
@@ -44,7 +47,7 @@ export default function PDFDownload({ cv }: PDFDownloadProps) {
       }
     } catch (error) {
       console.error('Download error:', error);
-      alert('Failed to download CV');
+      alert('Failed to download CV. Please try again.');
     } finally {
       setIsDownloading(false);
     }

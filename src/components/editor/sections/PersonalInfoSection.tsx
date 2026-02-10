@@ -88,42 +88,41 @@ export default function PersonalInfoSection({
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Website
-          </label>
-          <input
-            type="url"
-            value={personalInfo.website || ''}
-            onChange={(e) => handleChange('website', e.target.value)}
-            placeholder="https://example.com"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            LinkedIn
-          </label>
-          <input
-            type="url"
-            value={personalInfo.linkedin || ''}
-            onChange={(e) => handleChange('linkedin', e.target.value)}
-            placeholder="https://linkedin.com/in/username"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-          />
-        </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Website
+        </label>
+        <input
+          type="url"
+          value={personalInfo.website || ''}
+          onChange={(e) => handleChange('website', e.target.value)}
+          placeholder="https://example.com"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+        />
       </div>
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          GitHub
+          LinkedIn Username
         </label>
         <input
-          type="url"
+          type="text"
+          value={personalInfo.linkedin || ''}
+          onChange={(e) => handleChange('linkedin', e.target.value)}
+          placeholder="john-doe"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          GitHub Username
+        </label>
+        <input
+          type="text"
           value={personalInfo.github || ''}
           onChange={(e) => handleChange('github', e.target.value)}
-          placeholder="https://github.com/username"
+          placeholder="johndoe"
           className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
         />
       </div>
